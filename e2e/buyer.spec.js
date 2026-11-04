@@ -8,7 +8,7 @@ test.describe('AgroMarket E2E', () => {
   test('каталог загружается с сервера', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page).toHaveTitle(АгроМаркет);
+    await expect(page).toHaveTitle(/АгроМаркет/i);
 
     await expect(
       page.getByTestId('product-card').first()
@@ -25,10 +25,6 @@ test.describe('AgroMarket E2E', () => {
 
 test('покупатель регистрируется, входит и оформляет заявку', async ({ page }) => {
   await page.goto('/');
-
-  await page.getByRole('button', {
-    name: /нет аккаунта\? регистрация/i
-  }).click();
 
   await page.getByLabel(/имя/i).fill('E2E Покупатель');
 
