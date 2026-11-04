@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "e2e": "playwright test",
-    "e2e:prod": "E2E_BASE_URL=https://agromarket-ЛОГИН.vercel.app playwright test",
+    "e2e:prod": "E2E_BASE_URL=https://agromarket-lavaratorka.vercel.app playwright test",
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",

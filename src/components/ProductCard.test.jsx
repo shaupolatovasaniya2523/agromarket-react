@@ -21,6 +21,24 @@ describe('ProductCard', () => {
     expect(screen.getByText('Мёд')).toBeInTheDocument();
   });
 
+  test('проверка токена перед render', () => {
+  localStorage.setItem('token', 'test-token');
+
+  render(
+    <ProductCard
+      product={{
+        id: 1,
+        name: 'Мёд гречишный',
+        price: 3500,
+        category: 'Мёд',
+        stock: 10,
+      }}
+    />
+  );
+
+  expect(localStorage.getItem('token')).toBe('test-token');
+});
+
   test('кнопка «В заявку» вызывает onAdd с товаром', async () => {
     const user = userEvent.setup();
     const onAdd = vi.fn();
@@ -34,6 +52,37 @@ describe('ProductCard', () => {
     expect(onAdd).toHaveBeenCalledTimes(1);
     expect(onAdd).toHaveBeenCalledWith(product);
   });
+
+  test('добавляет товар в заявку после нажатия кнопки', async () => {
+  localStorage.setItem('token', 'test-token');
+
+  const user = userEvent.setup();
+  const onAdd = vi.fn();
+
+  render(
+    <ProductCard
+      product={{
+        id: 1,
+        name: 'Мёд гречишный',
+        price: 3500,
+        category: 'Мёд',
+        stock: 10,
+      }}
+      onAdd={onAdd}
+    />
+  );
+
+  // Действие пользователя
+  await user.click(screen.getByRole('button', { name: 'В заявку' }));
+
+  // Проверяем, что обработчик вызван с товаром
+  expect(onAdd).toHaveBeenCalledWith(
+    expect.objectContaining({
+      id: 1,
+      name: 'Мёд гречишный',
+    })
+  );
+});
 
   test('если товара нет в наличии, кнопка disabled и отображается сообщение', () => {
     const unavailableProduct = {

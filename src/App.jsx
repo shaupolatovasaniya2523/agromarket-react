@@ -1,18 +1,16 @@
 import { useState, useEffect } from 'react';
 import LoginForm from './components/LoginForm.jsx';
 import AddProductForm from './components/AddProductForm.jsx';
+import ProductCard from './components/ProductCard.jsx';
 import { API_URL, apiFetch } from './api.js';
 
 export default function App() {
   const [products, setProducts] = useState([]);
-
   const [user, setUser] = useState(
     () => JSON.parse(localStorage.getItem('user') || 'null')
   );
-
   const [path, setPath] = useState(window.location.pathname);
 
-  // Перенаправление гостя с административной страницы
   useEffect(() => {
     if (path === '/admin' && !localStorage.getItem('token')) {
       window.history.replaceState({}, '', '/login');
@@ -20,7 +18,6 @@ export default function App() {
     }
   }, [path]);
 
-  // Проверка авторизации
   useEffect(() => {
     if (!localStorage.getItem('token')) return;
 
@@ -35,15 +32,26 @@ export default function App() {
       });
   }, []);
 
-  // Загрузка каталога
   useEffect(() => {
-    fetch(`${API_URL}/products`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Ошибка загрузки товаров');
-        return res.json();
-      })
-      .then((data) => setProducts(data))
-      .catch((err) => console.error(err));
+    async function loadProducts() {
+      try {
+        const response = await fetch(`${API_URL}/products`);
+
+        if (!response.ok) {
+          throw new Error(`Ошибка API: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        setProducts(
+          Array.isArray(data) ? data : data.products || []
+        );
+      } catch (err) {
+        console.error('Ошибка загрузки каталога:', err);
+      }
+    }
+
+    loadProducts();
   }, []);
 
   function handleLogin(loggedInUser, token) {
@@ -56,6 +64,7 @@ export default function App() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+
     window.history.pushState({}, '', '/login');
     setPath('/login');
   }
@@ -71,7 +80,10 @@ export default function App() {
               <span>
                 Вы вошли как <b>{user.name}</b> ({user.role})
               </span>
-              <button onClick={handleLogout}>Выйти</button>
+
+              <button onClick={handleLogout}>
+                Выйти
+              </button>
             </>
           ) : (
             <LoginForm
@@ -94,21 +106,21 @@ export default function App() {
 
         <h2>Каталог товаров</h2>
 
-        <div className="products-grid">
-          {products.map((p) => (
-            <div
-              key={p.id}
-              className="product-card"
-              data-testid="product-card"
-            >
-              <h3>{p.name}</h3>
-              <p>{p.category}</p>
-              <p>
-                <b>{p.price} ₸</b> / {p.unit}
-              </p>
-            </div>
-          ))}
-        </div>
+        {products.length === 0 ? (
+          <p>Товаров пока нет или каталог не загрузился.</p>
+        ) : (
+          <div className="products-grid">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAdd={(item) => {
+                  console.log('Товар выбран:', item);
+                }}
+              />
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
