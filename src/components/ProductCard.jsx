@@ -1,15 +1,37 @@
+
 function ProductCard({ product, onAdd, featured }) {
-   return (
+  const isAvailable = product.stock > 0;
+
+  return (
     <article className={featured ? 'card card--featured' : 'card'}>
-      {featured && <span className="badge">Товар недели</span>}
-      <img src="https://www.svgrepo.com/show/313583/book-solid.svg" alt="Универ"></img>
-      {/* используйте product.image и product.name (для alt) */}
- 
+      {featured && (
+        <span className="badge">Товар недели</span>
+      )}
+
+      <img
+        src={
+          product.image ||
+          'https://www.svgrepo.com/show/313583/book-solid.svg'
+        }
+        alt={product.name}
+      />
+
       <h3>{product.name}</h3>
-      <p>{product.price} тг</p>
-      <button>В корзину</button>
+
+      <p>{product.price.toLocaleString('ru-RU')} тг</p>
+
+      <p>{product.category}</p>
+
+      {product.farmer && <p>{product.farmer}</p>}
+
+      <button
+        disabled={!isAvailable}
+        onClick={() => onAdd?.(product)}
+      >
+        {isAvailable ? 'В заявку' : 'Нет в наличии'}
+      </button>
     </article>
-    );
+  );
 }
- 
+
 export default ProductCard;
