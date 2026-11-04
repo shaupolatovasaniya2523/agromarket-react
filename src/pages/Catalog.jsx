@@ -1,10 +1,11 @@
-
 import { useEffect, useState } from 'react';
+import ProductCard from '../components/ProductCard';
 
-export default function Catalog() {
+export default function Catalog({ onAdd }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
 
   useEffect(() => {
     async function loadProducts() {
@@ -20,7 +21,9 @@ export default function Catalog() {
 
         const data = await response.json();
 
-        setProducts(data);
+        setProducts(
+          Array.isArray(data) ? data : data.products || []
+        );
       } catch (err) {
         setError('Не удалось загрузить товары');
       } finally {
@@ -49,11 +52,11 @@ export default function Catalog() {
 
       <div className="products-grid">
         {products.map((product) => (
-          <article key={product.id} className="card">
-            <h3>{product.name}</h3>
-            <p>{product.category}</p>
-            <p>{product.price} тг</p>
-          </article>
+          <ProductCard
+            key={product.id}
+            product={product}
+            onAdd={onAdd}
+          />
         ))}
       </div>
     </section>

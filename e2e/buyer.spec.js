@@ -24,24 +24,22 @@ test.describe('AgroMarket E2E', () => {
 
 
 test('покупатель регистрируется, входит и оформляет заявку', async ({ page }) => {
-  await page.goto('/');
+    await page.goto('/');
 
-  await page.getByLabel(/имя/i).fill('E2E Покупатель');
+    // Переключаем форму на регистрацию
+    await page.getByRole('button', {
+      name: /нет аккаунта\? регистрация/i,
+    }).click();
+
+    await page.getByLabel(/имя/i).fill('E2E Покупатель');
 
     await page.getByLabel(/e-?mail|почта/i).fill(email);
 
     await page.getByLabel(/пароль/i).first().fill(password);
 
-    // Регистрируемся
-    await page.getByRole('button', { name: /зарегистр/i }).click();
-
-    // Если после регистрации открывается страница входа
-    if (await page.getByLabel(/e-?mail|почта/i).isVisible().catch(() => false)) {
-      await page.getByLabel(/e-?mail|почта/i).fill(email);
-      await page.getByLabel(/пароль/i).first().fill(password);
-
-      await page.getByRole('button', { name: /войти/i }).click();
-    }
+    await page.getByRole('button', {
+      name: /зарегистрироваться/i,
+    }).click();
 
     // Проверяем авторизацию
     await expect(
